@@ -17,10 +17,11 @@
 - Základné CRUD operácie pre niektoré modely (všetky
 okrem Role, Flight, Maintenance)
 - Otestovanie základných operácií pomocou Postman-a
+- Zmeny sa nachádzajú v tomto [commite](https://github.com/iwanovski/twa-project/commit/0648bcd8fbe00f76a0cf22ede56ca9a688b8059d)
 
 ### Frontend
 - Základný setup aplikácie (zatiaľ len úplná kostra podľa návodu)
-- Výstup v tomto [repozitári]()
+- Výstup v tomto [commite](https://github.com/iwanovski/twa-project-fe/commit/f8684d1e6d389cffad624ef47956eb86e91759ea)
 
 ## Čo som nestihol urobiť (a prečo)
 
@@ -29,3 +30,12 @@ Na backende som preskočil niektoré zložitejšie modely. Nakoľko mám v plán
 Na frontende som urobil zmenu - namiesto návrhu stránok som sa venoval prvotnému setupu. Nakoniec mi to prišlo bezpečnejšie z toho pohľadu, že som si nebol istý koľko času by mi táto operácia zabrala budúci týždeň.
 
 ## Plán na budúci týždeň
+
+### Backend
+- Pokračovať v práci na komplexných use-casoch
+
+### Frontend
+- Prvotné nákresy stránok
+- Úvodná stránka – v budúcnosti sa bude vyžadovať prihlásenie – usporiadať layout na tejto stránke 
+- Začať pracovať na stránkach po prihlásení
+- Ak ostane čas tak aj niektoré routy na ktoré už existujú volania
