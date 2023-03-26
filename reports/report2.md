@@ -27,11 +27,11 @@
 - Pridal som niektoré stránky navyše - separátne routy
 - Zatiaľ majú tieto routy len veľmi základný dizajn - povedal by som že len oldschool CSS úpravy
 
-![System1](/img/System1.png)
+[System1](https://github.com/iwanovski/twa-project/blob/main/reports/img/System1.png)
 
-![System2](/img/System2.png)
+[System2](https://github.com/iwanovski/twa-project/blob/main/reports/img/System2.png)
 
-![System3](/img/System3.png)
+[System3](https://github.com/iwanovski/twa-project/blob/main/reports/img/System3.png)
 
 
 ## Čo som nestihol urobiť (a prečo)
