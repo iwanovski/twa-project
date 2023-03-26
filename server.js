@@ -33,6 +33,7 @@ app.use('/aircraftTypes', require('./routes/aircraftTypeRoutes'))
 app.use('/aircrafts', require('./routes/aircraftRoutes'))
 app.use('/aircraftCrews', require('./routes/aircraftCrewRoutes'))
 app.use('/mechanicCrews', require('./routes/mechanicCrewRoutes'))
+app.use('/flights', require('./routes/flightRoutes'))
 
 app.use(errorHandler)
 

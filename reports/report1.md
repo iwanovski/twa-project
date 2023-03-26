@@ -1,4 +1,10 @@
-# Report 1
+# Ivan Havran - report č. 1
+
+## Názov aplikácie
+### AircraftManager
+
+## Týždeň, za ktorý sa report robí
+### 12/03/2023 - 19/03/2023
 
 ## Čo bolo v pláne
 
