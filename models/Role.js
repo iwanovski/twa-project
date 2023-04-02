@@ -7,7 +7,7 @@ const roleSchema = new mongoose.Schema({
     },
     concerningId: {
         type: String,
-        required: true
+        default: "",
     },
     deleted: {
         type: Boolean,

@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
+    isMember: {
+        type: Boolean,
+        default: false
+    },
     deleted: {
         type: Boolean,
         default: false
