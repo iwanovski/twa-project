@@ -22,7 +22,9 @@ const createAircraftCrew = asyncHandler( async (req, res) => {
 
     const aircraftCrewObject = { name, mainPilotId, secondPilotId }
 
-    // Do more complex check of members
+    // TODO check pilots exist and are pilots
+
+    // TODO Do more complex check of members
     if (memberIds) {
         aircraftCrewObject["memberIds"] = memberIds
     }

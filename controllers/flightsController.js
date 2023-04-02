@@ -63,8 +63,29 @@ const createFlight = asyncHandler( async (req, res) => {
     }
 })
 
+// Document later
+const deleteFlight = asyncHandler( async (req, res) => {
+    const { code, date } = req.body
+
+    // Validate input
+    if (!code || !date) {
+        return res.status(400).json({"message": `Code and date are required.`})
+    }
+
+    // Find flight - code + date
+    const flight = await Flight.findOne({ code, date: new Date(date) }).exec()
+    if (!flight) {
+        return res.status(400).json({"message": `Flight with code ${code} scheduled on date ${date} not found.`})
+    } 
+
+    const result = await flight.deleteOne()
+
+    res.status(200).json({"message": `Flight ${result.code} on ${result.date} successfully deleted.`})
+})
+
 
 module.exports = {
     listFlights,
     createFlight,
+    deleteFlight,
 }

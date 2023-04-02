@@ -11,11 +11,6 @@ const listUsers = asyncHandler( async (req, res) => {
     res.json(users)
 })
 
-// Document later pokracovat na 2:08
-const getUser = asyncHandler( async (req, res) => {
-
-})
-
 // Document later
 const createUser = asyncHandler( async (req, res) => {
     const { username, password, fullName, email, roles } = req.body
@@ -97,7 +92,6 @@ const deleteUser = asyncHandler( async (req, res) => {
 
 module.exports = {
     listUsers,
-    getUser,
     createUser,
     updateUser,
     deleteUser,
