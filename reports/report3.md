@@ -18,12 +18,13 @@
 ## Čo som stihol urobiť
 
 ### Backend
-- commit a commit 
+- [commit](https://github.com/iwanovski/twa-project/commit/198618883e14c4acc9d71737339959e56a00fb17) a [commit](https://github.com/iwanovski/twa-project/commit/b4473a4d4f1b3409f581ee8dbf518ec05fd02361)
 - doimplementoval som niektoré chýbajúce use-cases
 
 - množstvo času som venoval premýšlaním nad štruktúrou - výstupy som spísal do súboru `specification of constraints`
 - popri implementácii som často narazil na situácie, nad ktorými som sa v špecifikácii až tak do hĺbky nevenoval
 - tento proces síce zabral mnoho času z tohto týždňa, ale na druhej strane mi tento výstup poslúži do budúcnosti
+- [commit so súborom](https://github.com/iwanovski/twa-project/commit/565c228795305eecb785b7be893dc74d5fe82e44)
 
 ### Frontend
 
