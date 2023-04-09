@@ -50,8 +50,8 @@ const createMechanicCrew = asyncHandler( async (req, res) => {
 
     // Check that every aircraftType exists
     if (aircraftTypeCodes) {
-        aircraftTypeCodes.forEach(async aircraftType => {
-            let aircraftType = await AircraftType.findOne({ "code": aircraftType}).exec()
+        aircraftTypeCodes.forEach(async aircraftTypeCode => {
+            let aircraftType = await AircraftType.findOne({ "code": aircraftTypeCode }).exec()
             if (!aircraftType) {
                 return res.status(400).json({"message": `Aircraft type with code ${aircraftType} does not exist.`})
             }
@@ -92,8 +92,8 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
 
     // Update complex parameters
     if (aircraftTypeCodes) {
-        aircraftTypeCodes.forEach(async aircraftType => {
-            let aircraftType = await AircraftType.findOne({ "code": aircraftType}).exec()
+        aircraftTypeCodes.forEach(async aircraftTypeCode => {
+            let aircraftType = await AircraftType.findOne({ "code": aircraftTypeCode }).exec()
             if (!aircraftType) {
                 return res.status(400).json({"message": `Aircraft type with code ${aircraftType} does not exist.`})
             }
