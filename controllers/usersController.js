@@ -72,17 +72,17 @@ const updateUser = asyncHandler( async (req, res) => {
 
 // Document later
 const deleteUser = asyncHandler( async (req, res) => {
-    const { username } = req.body
+    const { id } = req.body
 
     // Validate input
-    if (!username) {
-        return res.status(400).json({"message": `Username is required.`})
+    if (!id) {
+        return res.status(400).json({"message": `Id is required.`})
     }
 
     // Find user
-    const user = await User.findOne({ username }).exec()
+    const user = await User.findOne({ _id: id }).exec()
     if (!user) {
-        return res.status(400).json({"message": `User with username ${username} does not exist.`})
+        return res.status(400).json({"message": `User with id ${id} does not exist.`})
     } 
 
     const result = await user.deleteOne()

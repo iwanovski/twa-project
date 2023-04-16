@@ -30,3 +30,7 @@ Táto časť sa venuje došpecifikovaniu niektorých pridanách vecí.
 
 #### 28/03/2023
 - User má pridaný navyše parameter `isMember: bool`, ktorý charakterizuje, že či je už členom nejakej letovej posádky
+
+#### 15/04/2023
+- Rozhodol som sa prerobiť DELETE a UPDATE commandy na `back-ende` aby brali ako vstup `id` - zistil som, že sa to
+oveľa jednoduchšie mapuje na štruktúru `front-endu` a zároveň to umožňuje nepovolovať duplicity, čo bolo cieľom
