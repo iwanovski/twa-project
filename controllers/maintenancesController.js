@@ -34,9 +34,9 @@ const createMaintenance = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `Airport with code ${airportCode} does not exist.`})
     }
     // Check if mechanicCrew exists and is not empty
-    const mechanicCrew = await MechanicCrew.findOne({ _id: aircraftCrewId }).lean().exec()
+    const mechanicCrew = await MechanicCrew.findOne({ _id: mechanicCrewId }).lean().exec()
     if (!mechanicCrew) {
-        return res.status(400).json({"message": `Aircraft crew with id ${aircraftCrewId} does not exist.`})
+        return res.status(400).json({"message": `Aircraft crew with id ${mechanicCrewId} does not exist.`})
     }
     if (!mechanicCrew.memberIds) {
         return res.status(400).json({"message": `Mechanic crew with id ${mechanicCrewId} is empty.`})
@@ -55,7 +55,7 @@ const createMaintenance = asyncHandler( async (req, res) => {
     const maintenance = await Maintenance.create(maintenanceObject)
 
     if (maintenance) {
-        res.status(200).json({ "message": `New flight ${code} scheduled on ${date}`})
+        res.status(200).json({ "message": `New maintenance for aircraft ${aircraftCode} scheduled on ${date}`})
     } else {
         res.status(400).json({ "message": "Invalid data"})
     }
