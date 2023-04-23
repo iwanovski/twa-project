@@ -8,5 +8,6 @@ router.use(verifyJWT)
 router.route('/')
     .get(mechanicCrewsController.listMechanicCrews)
     .post(mechanicCrewsController.createMechanicCrew)
+    .patch(mechanicCrewsController.updateMechanicCrew)
 
 module.exports = router
