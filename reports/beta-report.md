@@ -18,11 +18,22 @@ https://aircraft-manager.onrender.com/
 
 ### Postup ako rozbehať vývojové prostredie
 
+Ako prvé je potrebné mať nainštalovaný Node.js vo verzii `18.13.0`.
+
+Okrem toho je nutné doplniť premenné prostredia do súboru `.env`, a to tieto:
+
+DATABASE_URI: URL na databázu, ktoré je možné zdarma vytvoriť na stránke [MongaDB](https://www.mongodb.com/).
+
+ACCESS_TOKEN_SECRET a REFRESH_TOKEN_SECRET potrebné pre prihlásenie (unikátne hash hodnoty).
+
+Pred spustením prostredia je ešte potrebné nainštalovať dependencies cez `npm install`
+
 Backend: npm run dev
 
 Frontend: npm start
 
-Je nutné poznať konto + heslo, tie pridelím len individuálne.
+Je možné využiť aj deploynutú aplikáciu.
+Nutné je poznať konto + heslo, tie pridelím len individuálne.
 
 ### Aké features sú už implementované, rozpracované, neimplementované vôbec?
 
