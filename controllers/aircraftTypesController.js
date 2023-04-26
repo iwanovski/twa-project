@@ -1,4 +1,5 @@
 const AircraftType = require('../models/AircraftType')
+const Aircraft = require('../models/Aircraft')
 const asyncHandler = require('express-async-handler')
 
 // Document later
@@ -60,9 +61,35 @@ const updateAircraftType = asyncHandler( async (req, res) => {
     res.status(200).json({ "message": `Aircraft type with code ${updatedAircraftType.code} updated.`})
 })
 
+const deleteAircraftType = asyncHandler( async (req, res) => {
+    const { id } = req.body
+
+    // Validate input
+    if (!id) {
+        return res.status(400).json({"message": `Id is required.`})
+    }
+
+    // Find aircraftType
+    const aircraftType = await AircraftType.findOne({ _id: id }).exec()
+    if (!aircraftType) {
+        return res.status(400).json({"message": `AircraftType with id ${id} does not exist.`})
+    }
+
+    // If there is at least one aircraft with this type, it fails
+    const aircrafts = await Aircraft.find({"aircraftTypeCode": aircraftType.code}).select().lean()
+    if (aircrafts.length) {
+        return res.status(400).json({"message": `AircraftType is still present in ${aircrafts.length} aircrafts.`})
+    }
+
+    // Otherwise proceed with deletion
+    const result = await aircraftType.deleteOne()
+
+    res.status(200).json({"message": `AircraftType ${result.code} successfully deleted.`})
+})
 
 module.exports = {
     listAircraftTypes,
     createAircraftType,
     updateAircraftType,
+    deleteAircraftType,
 }

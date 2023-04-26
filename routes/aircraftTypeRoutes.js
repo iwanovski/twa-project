@@ -9,5 +9,6 @@ router.route('/')
     .get(aircraftTypeController.listAircraftTypes)
     .post(aircraftTypeController.createAircraftType)
     .patch(aircraftTypeController.updateAircraftType)
+    .delete(aircraftTypeController.deleteAircraftType)
 
 module.exports = router

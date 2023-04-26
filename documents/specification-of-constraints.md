@@ -34,3 +34,22 @@ Táto časť sa venuje došpecifikovaniu niektorých pridanách vecí.
 #### 15/04/2023
 - Rozhodol som sa prerobiť DELETE a UPDATE commandy na `back-ende` aby brali ako vstup `id` - zistil som, že sa to
 oveľa jednoduchšie mapuje na štruktúru `front-endu` a zároveň to umožňuje nepovolovať duplicity, čo bolo cieľom
+
+#### 24/04/2023
+
+Táto časť sa venuje špecifikácii, kedy môžu byť objekty zmazané/upravené. Nakoľko je v aplikácii viacnásobná závislosť, niektoré
+podmienky je nutné kontrolovať pred každým zmazaním/upravením.
+
+Nakoľko sa systém orientuje hlavne na plánovanie letov a opráv, tieto dve schémy by sa sa nikdy nemali dostať do nekonzistentného stavu.
+V rámci jednoduchosti práce s aplikáciou povolíme nekonzistenciu pri iných schémach - pri editácii tohto objektu sa následne nepovolí užívateľovi ho uložiť
+do nekonzistentného stavu.
+
+##### Aircraft
+- Lietadlo sa smie zmazať vtedy, keď sa nenachádza v žiadnom lete a naplánovanej oprave.
+
+- Lietadlu sa pri editácii nedá zmeniť jeho kód, nakoľko to je jeho unikátny kód, ktorý sa pri registrácii vytvára
+
+##### Airport
+- Letisko sa zmazať vtedy, keď sa nenachádza v žiadnom lete a naplánovanej oprave.
+
+- 

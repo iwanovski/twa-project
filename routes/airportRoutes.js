@@ -8,5 +8,6 @@ router.use(verifyJWT)
 router.route('/')
     .get(airportController.listAirports)
     .post(airportController.createAirport)
+    .delete(airportController.deleteAirport)
 
 module.exports = router
