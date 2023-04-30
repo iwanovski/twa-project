@@ -8,5 +8,7 @@ router.use(verifyJWT)
 router.route('/')
     .get(aircraftCrewsController.listAircraftCrews)
     .post(aircraftCrewsController.createAircraftCrew)
+    .patch(aircraftCrewsController.updateAircraftCrew)
+    .delete(aircraftCrewsController.deleteAircraftCrew)
 
 module.exports = router

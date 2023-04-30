@@ -41,12 +41,12 @@ const createAircraftType = asyncHandler( async (req, res) => {
 })
 
 const updateAircraftType = asyncHandler( async (req, res) => {
-    const { name, code, weight, height, width, numberOfPlaces } = req.body
+    const { name, id, weight, height, width, numberOfPlaces } = req.body
 
     // Check if aircraft type exists
-    const aircraftType = await AircraftType.findOne({ code }).exec()
+    const aircraftType = await AircraftType.findOne({ _id: id }).exec()
     if (!aircraftType) {
-        return res.status(400).json({"message": `Aircraft type with code ${code} does not exist.`})
+        return res.status(400).json({"message": `Aircraft type with id ${id} does not exist.`})
     }
 
     // Update fields
@@ -80,6 +80,7 @@ const deleteAircraftType = asyncHandler( async (req, res) => {
     if (aircrafts.length) {
         return res.status(400).json({"message": `AircraftType is still present in ${aircrafts.length} aircrafts.`})
     }
+    // Do not check mechanicCrew ids
 
     // Otherwise proceed with deletion
     const result = await aircraftType.deleteOne()

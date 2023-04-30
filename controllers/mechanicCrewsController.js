@@ -33,30 +33,33 @@ const createMechanicCrew = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `Airport with code ${homeAirportCode} does not exist.`})
     }
 
-    // TODO Do more complex check of members - validate member exists a is not part of other crew
+    // Complex check of members
     if (memberIds) {
-        memberIds.forEach(async userId => {
-            let user = await User.findById(userId).exec()
-            if (!user) {
-                return res.status(400).json({"message": `User with id ${userId} does not exist.`})
+        let members = []
+        for (const memberId of memberIds) {
+            let member = await User.findOne({ "code": memberId }).exec()
+            if (!member) {
+                return res.status(400).json({"message": `User with id ${memberId} does not exist.`})
             }
-            if (user.isMember) {
-                return res.status(400).json({"message": `User with id ${userId} is already part of crew.`})
-            }
-        });
-
+            members.push(member)
+        };
+        for (const member of members) {
+            member.isMember += 1
+            member.save()
+        }
         mechanicCrewObject["memberIds"] = memberIds
+    } else {
+        mechanicCrewObject["memberIds"] = []
     }
 
     // Check that every aircraftType exists
     if (aircraftTypeCodes) {
-        aircraftTypeCodes.forEach(async aircraftTypeCode => {
+        for (const aircraftTypeCode of aircraftTypeCodes) {
             let aircraftType = await AircraftType.findOne({ "code": aircraftTypeCode }).exec()
             if (!aircraftType) {
                 return res.status(400).json({"message": `Aircraft type with code ${aircraftType} does not exist.`})
             }
-        });
-
+        };
         mechanicCrewObject.aircraftTypeCodes = aircraftTypeCodes
     }
 
@@ -81,39 +84,42 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
     }
 
     // Update simple parameters
-    mechanicCrew.name = name
-    if (homeAirportCode) {
-        const airport = await Airport.findOne({ "code": homeAirportCode }).exec()
-        if (!airport) {
-            return res.status(400).json({"message": `Airport with code ${homeAirportCode} does not exist.`})
+    if (memberIds) {
+        let members = []
+        for (const memberId of memberIds) {
+            let member
+            try {
+                member = await User.findOne({ "_id": memberId }).exec()
+            } catch (e) {
+                return res.status(400).json({"message": `Ids have different format.`})
+            }
+            
+            if (!member) {
+                return res.status(400).json({"message": `User with id ${memberId} does not exist.`})
+            }
+            members.push(member)
         }
-        mechanicCrew.homeAirportCode = homeAirportCode
+
+        for (const member of members) {
+            if (!mechanicCrew.memberIds.includes(member._id)) {
+                member.isMember += 1
+                member.save()
+            }
+        }
+        mechanicCrew["memberIds"] = memberIds
+    } else {
+        mechanicCrew["memberIds"] = []
     }
 
     // Update complex parameters
     if (aircraftTypeCodes) {
-        aircraftTypeCodes.forEach(async aircraftTypeCode => {
+        for (const aircraftTypeCode of aircraftTypeCodes) {
             let aircraftType = await AircraftType.findOne({ "code": aircraftTypeCode }).exec()
             if (!aircraftType) {
                 return res.status(400).json({"message": `Aircraft type with code ${aircraftType} does not exist.`})
             }
-        });
+        };
         mechanicCrew.aircraftTypeCodes = aircraftTypeCodes
-    }
-
-    // TODO: Need for comparing current members as they fail in second condition
-    if (memberIds) {
-        memberIds.forEach(async userId => {
-            let user = await User.findById(userId).exec()
-            if (!user) {
-                return res.status(400).json({"message": `User with id ${userId} does not exist.`})
-            }
-            if (user.isMember) {
-                return res.status(400).json({"message": `User with id ${userId} is already part of crew.`})
-            }
-        });
-
-        mechanicCrew.memberIds = memberIds
     }
 
     const updatedMechanicCrew = await mechanicCrew.save()
@@ -141,6 +147,8 @@ const deleteMechanicCrew = asyncHandler( async (req, res) => {
     if (maintenances) {
         return res.status(400).json({"message": `MechanicCrew has ${maintenance.length} maintenances scheduled and therefore can not be deleted.`})
     } 
+
+    // Delete members gracefully
 
     const result = await mechanicCrew.deleteOne()
 

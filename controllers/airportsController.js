@@ -1,7 +1,9 @@
 const Airport = require('../models/Airport')
 const Flight = require('../models/Flight')
+const Maintenance = require('../models/Maintenance')
+const MechanicCrew = require('../models/MechanicCrew')
+const Aircraft = require('../models/Aircraft')
 const asyncHandler = require('express-async-handler')
-const bcrypt = require('bcrypt')
 
 // Document later
 const listAirports = asyncHandler( async (req, res) => {
@@ -41,6 +43,24 @@ const createAirport = asyncHandler( async (req, res) => {
     }
 })
 
+const updateAirport = asyncHandler( async (req, res) => {
+    const { id, fullName, address } = req.body
+
+    // Check if airport exists
+    const airport = await Airport.findOne({ _id: id }).exec()
+    if (!airport) {
+        return res.status(400).json({"message": `Airport with id ${id} does not exist.`})
+    }
+
+    // Update fields
+    airport.fullName = fullName || airport.fullName
+    airport.address = address || airport.address
+
+    const updatedAirport = await airport.save()
+
+    res.status(200).json({ "message": `Airport with code ${updatedAirport.code} updated.`})
+})
+
 // Document later
 const deleteAirport = asyncHandler( async (req, res) => {
     const { id } = req.body
@@ -62,14 +82,36 @@ const deleteAirport = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `There are scheduled flights arriving to specified airport. Delete them first.`})
     }
 
-    // const result = await airport.deleteOne()
+    const departingFlights = await Flight.find({ "departureAirportCode": airport.code }).select().lean()
+    if (departingFlights.length) {
+        return res.status(400).json({"message": `There are scheduled flights departing from specified airport. Delete them first.`})
+    }
 
-    res.status(200).json({"message": `Airport ${result.fullName} successfully deleted.`})
+    const maintenances = await Maintenance.find({ "airportCode": airport.code }).select().lean()
+    if (maintenances.length) {
+        return res.status(400).json({"message": `There are scheduled maintenances for specified airport. Delete them first.`})
+    }
+
+    // We need to check mechanicCrews and aircrafts as well
+    const mechanicCrews = await MechanicCrew.find({ "homeAirportCode": airport.code }).select().lean()
+    if (mechanicCrews.length) {
+        return res.status(400).json({"message": `There are mechanic crews residing in this airport. Edit or delete them first.`})
+    }
+
+    const aircrafts = await Aircraft.find({ "homeAirportCode": airport.code }).select().lean()
+    if (aircrafts.length) {
+        return res.status(400).json({"message": `There are aircrafts residing in this airport. Edit or delete them first.`})
+    }
+
+    const result = await airport.deleteOne()
+
+    res.status(200).json({"message": `Airport ${result.code} successfully deleted.`})
 })
 
 
 module.exports = {
     listAirports,
     createAirport,
+    updateAirport,
     deleteAirport,
 }
