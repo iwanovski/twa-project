@@ -16,6 +16,10 @@ const airportSchema = new mongoose.Schema({
     managerId: {
         type: String,
     },
+    plannerIds: {
+        type: Array,
+        default: []
+    },
     deleted: {
         type: Boolean,
         default: false

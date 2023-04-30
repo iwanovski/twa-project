@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema({
         default: []
     },
     isMember: {
-        type: Boolean,
-        default: false
+        type: Number,
+        default: 0
     },
     deleted: {
         type: Boolean,
