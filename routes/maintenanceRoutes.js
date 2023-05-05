@@ -8,6 +8,7 @@ router.use(verifyJWT)
 router.route('/')
     .get(maintenanceController.listMaintenances)
     .post(maintenanceController.createMaintenance)
+    .patch(maintenanceController.updateMaintenance)
     .delete(maintenanceController.deleteMaintenance)
 
 module.exports = router

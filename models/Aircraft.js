@@ -15,6 +15,7 @@ const aircraftSchema = new mongoose.Schema({
     },
     maintainerId: {
         type: String,
+        required: true,
     },
     deleted: {
         type: Boolean,

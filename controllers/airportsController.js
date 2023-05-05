@@ -3,25 +3,39 @@ const Flight = require('../models/Flight')
 const Maintenance = require('../models/Maintenance')
 const MechanicCrew = require('../models/MechanicCrew')
 const Aircraft = require('../models/Aircraft')
+const User = require('../models/User')
 const asyncHandler = require('express-async-handler')
 
-// Document later
+/* 
+Method: Get
+Desc: List all airports.
+Par: <no>
+*/
 const listAirports = asyncHandler( async (req, res) => {
     const airports = await Airport.find().select().lean()
     if (!airports?.length) {
-        return res.status(400).json({ "message": "No airports found"})
+        return res.json([])
     }
     res.json(airports)
 })
 
 
-// Document later
+/* 
+Method: POST
+Desc: Create an airport.
+Par:
+- code: unique code of airport
+- fullName: full name of airport
+- address: full address of airport
+- managerId: id of manager
+- plannerIds: ids of existing users, that can plan flights to this airport
+*/
 const createAirport = asyncHandler( async (req, res) => {
-    const { fullName, code, address, managerId } = req.body
+    const { fullName, code, address, managerId, plannerIds } = req.body
 
     // Validate data
-    if (!fullName || !code) {
-        return res.status(400).json({"message": "Fullname, code and address are required"})
+    if (!fullName || !code || !address || !managerId || !plannerIds || !plannerIds.length) {
+        return res.status(400).json({"message": "All fields are required"})
     }
 
     // Check duplicate
@@ -31,7 +45,25 @@ const createAirport = asyncHandler( async (req, res) => {
         return res.status(409).json({"message": "Duplicate airport"})
     }
 
-    const airportObject = { fullName, code, address, managerId }
+    const manager = await User.findOne({"_id": managerId}).lean().exec()
+    if (!manager) {
+        return res.status(400).json({"message": `Manager with id ${ managerId } does not exist.`})
+    }
+    if (!manager.roles.includes("AirportManager")) {
+        return res.status(400).json({"message": `User with id ${ managerId } does not have sufficient role to be manager.`})
+    }
+
+    for (const plannerId of plannerIds) {
+        let planner = await User.findOne({ "_id": plannerId }).exec()
+        if (!planner) {
+            return res.status(400).json({"message": `Planner with id ${plannerId} does not exist.`})
+        }
+        if (!planner.roles.includes("Planner")) {
+            return res.status(400).json({"message": `User with id ${ plannerId } does not have sufficient role to be planner.`})
+        }
+    };
+
+    const airportObject = { fullName, code, address, managerId, plannerIds }
 
     // Create and store new user
     const airport = await Airport.create(airportObject)
@@ -43,8 +75,23 @@ const createAirport = asyncHandler( async (req, res) => {
     }
 })
 
+/* 
+Method: PATCH
+Desc: Update an airport.
+Par:
+- id: id of existing airport
+- fullName: full name of airport
+- address: full address of airport
+- managerId: id of manager
+- plannerIds: ids of existing users, that can plan flights to this airport
+*/
 const updateAirport = asyncHandler( async (req, res) => {
-    const { id, fullName, address } = req.body
+    const { id, fullName, address, managerId, plannerIds, userId } = req.body
+
+    // Validate data
+    if (!id || !fullName || !address || !managerId || !plannerIds || !plannerIds.length) {
+        return res.status(400).json({"message": "All fields are required"})
+    }
 
     // Check if airport exists
     const airport = await Airport.findOne({ _id: id }).exec()
@@ -52,16 +99,49 @@ const updateAirport = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `Airport with id ${id} does not exist.`})
     }
 
-    // Update fields
+    const editingUser = await User.findOne({ _id: userId }).exec()
+    if (!editingUser.roles.includes("Admin") && !editingUser.roles.includes("AirportsAdmin")) {
+        if (!editingUser.roles.includes("AirportManager") || userId !== airport.managerId)
+        return res.status(400).json({"message": `You are not allowed to edit this airport.`})
+    }
+
+    // Update simple fields
     airport.fullName = fullName || airport.fullName
     airport.address = address || airport.address
+
+    // verify manager is a manager
+    const manager = await User.findOne({"_id": managerId}).lean().exec()
+    if (!manager) {
+        return res.status(400).json({"message": `Manager with id ${ managerId } does not exist.`})
+    }
+    if (!manager.roles.includes("AirportManager")) {
+        return res.status(400).json({"message": `User with id ${ managerId } does not have sufficient role to be manager.`})
+    }
+    airport.managerId = managerId
+
+    // check that all planners are planners
+    for (const plannerId of plannerIds) {
+        let planner = await User.findOne({ "_id": plannerId }).exec()
+        if (!planner) {
+            return res.status(400).json({"message": `Planner with id ${plannerId} does not exist.`})
+        }
+        if (!planner.roles.includes("Planner")) {
+            return res.status(400).json({"message": `User with id ${ plannerId } does not have sufficient role to be planner.`})
+        }
+    };
+    airport.plannerIds = plannerIds
 
     const updatedAirport = await airport.save()
 
     res.status(200).json({ "message": `Airport with code ${updatedAirport.code} updated.`})
 })
 
-// Document later
+/* 
+Method: DELETE
+Desc: Delete an airport.
+Par:
+- id: id of existing airport
+*/
 const deleteAirport = asyncHandler( async (req, res) => {
     const { id } = req.body
 

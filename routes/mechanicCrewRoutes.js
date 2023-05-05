@@ -9,5 +9,6 @@ router.route('/')
     .get(mechanicCrewsController.listMechanicCrews)
     .post(mechanicCrewsController.createMechanicCrew)
     .patch(mechanicCrewsController.updateMechanicCrew)
+    .delete(mechanicCrewsController.deleteMechanicCrew)
 
 module.exports = router

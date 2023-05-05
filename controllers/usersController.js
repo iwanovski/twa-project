@@ -4,16 +4,29 @@ const Maintenance = require('../models/Maintenance')
 const asyncHandler = require('express-async-handler')
 const bcrypt = require('bcrypt')
 
-// Document later
+/* 
+Method: GET
+Desc: List all users.
+Par: <no>
+*/
 const listUsers = asyncHandler( async (req, res) => {
     const users = await User.find().select('-password').lean()
     if (!users?.length) {
-        return res.status(400).json({ "message": "No users found"})
+        return res.json([])
     }
     res.json(users)
 })
 
-// Document later
+/* 
+Method: POST
+Desc: Create an user.
+Par:
+- username: unique username
+- password: password
+- fullName: fullName
+- email: proper email address
+- roles: roles of user
+*/
 const createUser = asyncHandler( async (req, res) => {
     const { username, password, fullName, email, roles } = req.body
 
@@ -46,9 +59,24 @@ const createUser = asyncHandler( async (req, res) => {
     }
 })
 
-// Document later
+/* 
+Method: PATCH
+Desc: Update an user.
+Par:
+- id: id of existing user
+- password: password
+- fullName: fullName
+- email: proper email address
+- roles: roles of user
+- userId: id of user that is trying to edit
+*/
 const updateUser = asyncHandler( async (req, res) => {
-    const { id, username, password, fullName, email, roles } = req.body
+    const { id, password, fullName, email, roles, userId } = req.body
+
+    const editingUser = await User.findOne({ _id: userId }).exec()
+    if (!editingUser.roles.includes("Admin") && userId !== id) {
+        return res.status(400).json({"message": `You are not allowed to edit different users.`})
+    }
 
     // Check if user exists
     const user = await User.findOne({ _id: id }).exec()
@@ -56,33 +84,26 @@ const updateUser = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `User with id ${id} does not exist.`})
     }
 
-    // Update simple parameters
-    //if (username) {
-        //const existingUser = await User.findOne({ username }).exec()
-        //if (existingUser._id != id) {
-            //return res.status(400).json({"message": `User with username ${username} already exists.`})
-        //}
-        //user.username = username
-    //}
     user.fullName = fullName
     user.email = email
+    // We don't do complex check of roles, admin need to handle that
     user.roles = roles
-    // TODO remove when becomes unnecessary
-    if (!user.isMember) {
-        user.isMember = 0
-    }
 
     // Hash password
     if (password) {
         user.password = await bcrypt.hash(password, 10)
     }
-    // TODO check pilots?
     const updatedUser = await user.save()
 
     res.status(200).json({ "message": `User ${updatedUser.username} updated.`})
 })
 
-// Document later
+/* 
+Method: DELETE
+Desc: Delete an user.
+Par:
+- id: id of existing user
+*/
 const deleteUser = asyncHandler( async (req, res) => {
     const { id } = req.body
 
@@ -102,17 +123,16 @@ const deleteUser = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `User is still part of ${user.isMember} crews. Edit them first.`})
     }
 
-    const flights = Flight.find({ "plannedBy": id }).select().lean()
-    if (flights) {
+    // This methods needs to be called very carefully as we handle only flights and maintenances. Admin needs to be aware of that
+    const flights = await Flight.find({ "plannedBy": id }).select().lean()
+    if (flights?.length) {
         return res.status(400).json({"message": `There are scheduled flights planned by this user. Edit or delete them first.`})
     }
 
-    const maintenances = Maintenance.find({ "plannedBy": id }).select().lean()
-    if (maintenances) {
+    const maintenances = await Maintenance.find({ "plannedBy": id }).select().lean()
+    if (maintenances?.length) {
         return res.status(400).json({"message": `There are scheduled maintenances planned by this user. Edit or delete them first.`})
     }
-
-    // TODO Check pilots
 
     const result = await user.deleteOne()
 

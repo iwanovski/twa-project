@@ -3,24 +3,37 @@ const Airport = require('../models/Airport')
 const AircraftType = require('../models/AircraftType')
 const Flight = require('../models/Flight')
 const Maintenance = require('../models/Maintenance')
+const User = require('../models/User')
 const asyncHandler = require('express-async-handler')
 
-// Document later
+/* 
+Method: Get
+Desc: List all aircrafts.
+Par: <no>
+*/
 const listAircrafts = asyncHandler( async (req, res) => {
     const airports = await Aircraft.find().select().lean()
     if (!airports?.length) {
-        return res.status(400).json({ "message": "No aircrafts found"})
+        return res.json([])
     }
     res.json(airports)
 })
 
 
-// Document later
+/* 
+Method: POST
+Desc: Create an aircraft.
+Par:
+- code: unique code of aircraft
+- aircraftTypeCode: code of affiliated aircraftType
+- homeAirportCode: home airport of this aircraft
+- maintainerId: id of maintainer
+*/
 const createAircraft = asyncHandler( async (req, res) => {
-    const { code, aircraftTypeCode, homeAirportCode } = req.body
+    const { code, aircraftTypeCode, homeAirportCode, maintainerId } = req.body
 
     // Validate data
-    if (!code || !aircraftTypeCode || !homeAirportCode) {
+    if (!code || !aircraftTypeCode || !homeAirportCode || !maintainerId) {
         return res.status(400).json({"message": "All fields are required"})
     }
 
@@ -42,7 +55,16 @@ const createAircraft = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `Airport with code ${ homeAirportCode } does not exist.`})
     }
 
-    const aircraftObject = { code, aircraftTypeCode, homeAirportCode }
+    // Validate that maintainer exists and is maintainer
+    const maintainer = await User.findOne({ "_id": maintainerId }).lean().exec()
+    if (!maintainer) {
+        return res.status(400).json({"message": `User with id ${ maintainerId } does not exist.`})
+    }
+    if (!maintainer.roles.includes("AircraftMaintainer")) {
+        return res.status(400).json({"message": `User with id ${ maintainerId } does not have sufficient role to be maintainer.`})
+    }
+
+    const aircraftObject = { code, aircraftTypeCode, homeAirportCode, maintainerId }
 
     // Create and store new user
     const aircraft = await Aircraft.create(aircraftObject)
@@ -54,37 +76,70 @@ const createAircraft = asyncHandler( async (req, res) => {
     }
 })
 
+/* 
+Method: PATCH
+Desc: Update an aircraft.
+Par:
+- id: id of existing aircraft
+- aircraftTypeCode: code of affiliated aircraftType
+- homeAirportCode: home airport of this aircraft
+- maintainerId: id of maintainer
+- userId: id of user that is trying to edit
+*/
 const updateAircraft = asyncHandler( async (req, res) => {
-    const { id, aircraftTypeCode, homeAirportCode } = req.body
+    const { id, aircraftTypeCode, homeAirportCode, maintainerId, userId } = req.body
 
-    // Check if aircraft type exists
+    // Validate data
+    if (!id || !aircraftTypeCode || !homeAirportCode || !maintainerId || !userId) {
+        return res.status(400).json({"message": "All fields are required"})
+    }
+
+    // Check if aircraft exists
     const aircraft = await Aircraft.findOne({ _id: id }).exec()
     if (!aircraft) {
         return res.status(400).json({"message": `Aircraft with id ${id} does not exist.`})
     }
 
-    // Update fields
-    if (aircraftTypeCode) {
-        const aircraftType = await AircraftType.findOne({ "code": aircraftTypeCode }).lean().exec()
-        if (!aircraftType) {
-            return res.status(400).json({"message": `Aircraft type with code ${ aircraftTypeCode } does not exist.`})
-        }
-        aircraft.aircraftTypeCode = aircraftTypeCode
+    const editingUser = await User.findOne({ _id: userId }).exec()
+    if (!editingUser.roles.includes("Admin") && !editingUser.roles.includes("AircraftController")) {
+        if (!editingUser.roles.includes("AircraftMaintainer") || userId !== aircraft.maintainerId)
+        return res.status(400).json({"message": `You are not allowed to edit this aircraft.`})
     }
 
-    if (homeAirportCode) {
-        const airport = await Airport.findOne({ "code": homeAirportCode }).lean().exec()
-        if (!airport) {
-            return res.status(400).json({"message": `Airport with code ${ homeAirportCode } does not exist.`})
-        }
-        aircraft.homeAirportCode = homeAirportCode
+    // Update fields
+    const aircraftType = await AircraftType.findOne({ "code": aircraftTypeCode }).lean().exec()
+    if (!aircraftType) {
+        return res.status(400).json({"message": `Aircraft type with code ${ aircraftTypeCode } does not exist.`})
     }
+    aircraft.aircraftTypeCode = aircraftTypeCode
+
+    const airport = await Airport.findOne({ "code": homeAirportCode }).lean().exec()
+    if (!airport) {
+        return res.status(400).json({"message": `Airport with code ${ homeAirportCode } does not exist.`})
+    }
+    aircraft.homeAirportCode = homeAirportCode
+
+    // Validate that maintainer exists and is maintainer
+    const maintainer = await User.findOne({ "_id": maintainerId }).lean().exec()
+    if (!maintainer) {
+        return res.status(400).json({"message": `User with id ${ maintainerId } does not exist.`})
+    }
+    if (!maintainer.roles.includes("AircraftMaintainer")) {
+        return res.status(400).json({"message": `User with id ${ maintainerId } does not have sufficient role to be maintainer.`})
+    }
+    aircraft.maintainerId = maintainerId
 
     const updatedAircraft = await aircraft.save()
 
     res.status(200).json({ "message": `Aircraft with code ${updatedAircraft.code} updated.`})
 })
 
+/* 
+Method: DELETE
+Desc: Delete an aircraft.
+Par:
+- id: id of existing aircraft
+*/
 const deleteAircraft = asyncHandler( async (req, res) => {
     const { id } = req.body
 
@@ -119,5 +174,6 @@ const deleteAircraft = asyncHandler( async (req, res) => {
 module.exports = {
     listAircrafts,
     createAircraft,
+    updateAircraft,
     deleteAircraft,
 }

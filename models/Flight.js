@@ -23,6 +23,7 @@ const flightSchema = new mongoose.Schema({
     },
     plannedBy: {
         type: String,
+        required: true
     },
     date: {
         type: Date,

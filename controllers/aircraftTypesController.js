@@ -2,17 +2,31 @@ const AircraftType = require('../models/AircraftType')
 const Aircraft = require('../models/Aircraft')
 const asyncHandler = require('express-async-handler')
 
-// Document later
+/* 
+Method: Get
+Desc: List all aircraft types.
+Par: <no>
+*/
 const listAircraftTypes = asyncHandler( async (req, res) => {
     const airportTypes = await AircraftType.find().select().lean()
     if (!airportTypes?.length) {
-        return res.status(400).json({ "message": "No airport types found"})
+        return res.json([])
     }
     res.json(airportTypes)
 })
 
 
-// Document later
+/* 
+Method: POST
+Desc: Create an aircraft type.
+Par:
+- name: name of aircraft type
+- code: unique code of aircraft type
+- weight: weight of aircraft type
+- height: height of aircraft type
+- width: width of aircraft type
+- numberOfPlaces: number of places for passengers
+*/
 const createAircraftType = asyncHandler( async (req, res) => {
     const { name, code, weight, height, width, numberOfPlaces } = req.body
 
@@ -40,6 +54,17 @@ const createAircraftType = asyncHandler( async (req, res) => {
     }
 })
 
+/* 
+Method: PATCH
+Desc: Update an aircraft type.
+Par:
+- id: id of existing aircraft type
+- name: name of aircraft type
+- weight: weight of aircraft type
+- height: height of aircraft type
+- width: width of aircraft type
+- numberOfPlaces: number of places for passengers
+*/
 const updateAircraftType = asyncHandler( async (req, res) => {
     const { name, id, weight, height, width, numberOfPlaces } = req.body
 
@@ -61,6 +86,12 @@ const updateAircraftType = asyncHandler( async (req, res) => {
     res.status(200).json({ "message": `Aircraft type with code ${updatedAircraftType.code} updated.`})
 })
 
+/* 
+Method: DELETE
+Desc: Delete an aircraft type.
+Par:
+- id: id of existing aircraft type
+*/
 const deleteAircraftType = asyncHandler( async (req, res) => {
     const { id } = req.body
 
@@ -80,7 +111,6 @@ const deleteAircraftType = asyncHandler( async (req, res) => {
     if (aircrafts.length) {
         return res.status(400).json({"message": `AircraftType is still present in ${aircrafts.length} aircrafts.`})
     }
-    // Do not check mechanicCrew ids
 
     // Otherwise proceed with deletion
     const result = await aircraftType.deleteOne()
