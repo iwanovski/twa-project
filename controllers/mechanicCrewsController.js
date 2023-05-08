@@ -179,7 +179,7 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
 
     // Downgrade number of crews for mechanics that are not part of this crew anymore
     let membersToDowngrade = []
-    for (const formerMemberId of aircraftCrew.memberIds) { // For all current members
+    for (const formerMemberId of mechanicCrew.memberIds) { // For all current members
         if (!memberIds.includes(formerMemberId)) { // If new members does not include them
             let member
             try {
