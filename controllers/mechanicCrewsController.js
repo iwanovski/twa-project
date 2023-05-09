@@ -143,7 +143,7 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
 
     // Now we need to update number of crews for new mechanics
     for (const member of members) { // New members
-        if (!mechanicCrew.memberIds.includes(member._id)) { // If mechanic not in current crew
+        if (!mechanicCrew.memberIds.includes(member._id.toString())) { // If mechanic not in current crew
             member.isMember += 1
             await member.save()
         }
@@ -165,7 +165,7 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
         }
     }
     for (const member of membersToDowngrade) { 
-        if (!mechanicCrew.memberIds.includes(member._id)) { // Double check that new crew does not include this user anymore
+        if (!mechanicCrew.memberIds.includes(member._id.toString())) { // Double check that new crew does not include this user anymore
             member.isMember -= 1
             await member.save()
         }

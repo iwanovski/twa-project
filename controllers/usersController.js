@@ -120,7 +120,9 @@ const deleteUser = asyncHandler( async (req, res) => {
 
     // Check there are no flights or maintenances and isMember is 0
     if (user.isMember) {
-        return res.status(400).json({"message": `User is still part of ${user.isMember} crews. Edit them first.`})
+        if (!user.roles.includes("Mechanic")) {
+            return res.status(400).json({"message": `User is still part of ${user.isMember} crews. Edit them first.`})
+        }
     }
 
     // This methods needs to be called very carefully as we handle only flights and maintenances. Admin needs to be aware of that

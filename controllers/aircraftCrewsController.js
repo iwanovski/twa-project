@@ -154,7 +154,7 @@ const updateAircraftCrew = asyncHandler( async (req, res) => {
 
     // Now we need to update number of crews for new stewards
     for (const member of members) { // New members
-        if (!aircraftCrew.memberIds.includes(member._id)) { // If steward not in current crew
+        if (!aircraftCrew.memberIds.includes(member._id.toString())) { // If steward not in current crew
             member.isMember += 1
             await member.save()
         }
@@ -176,7 +176,7 @@ const updateAircraftCrew = asyncHandler( async (req, res) => {
         }
     }
     for (const member of membersToDowngrade) { 
-        if (!aircraftCrew.memberIds.includes(member._id)) { // Double check that new crew does not include this user anymore
+        if (!aircraftCrew.memberIds.includes(member._id.toString())) { // Double check that new crew does not include this user anymore
             member.isMember -= 1
             await member.save()
         }
