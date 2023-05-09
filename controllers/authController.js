@@ -20,7 +20,6 @@ const login = asyncHandler(async (req, res) => {
     }
 
     const match = await bcrypt.compare(password, foundUser.password)
-    console.log(foundUser.password)
 
     if (!match) return res.status(401).json({ message: 'Unauthorized' })
 

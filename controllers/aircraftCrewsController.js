@@ -70,7 +70,7 @@ const createAircraftCrew = asyncHandler( async (req, res) => {
     };
     for (const member of members) {
         member.isMember += 1
-        member.save()
+        await member.save()
     }
 
     // Create and store new user
@@ -156,7 +156,7 @@ const updateAircraftCrew = asyncHandler( async (req, res) => {
     for (const member of members) { // New members
         if (!aircraftCrew.memberIds.includes(member._id)) { // If steward not in current crew
             member.isMember += 1
-            member.save()
+            await member.save()
         }
     }
 
@@ -178,7 +178,7 @@ const updateAircraftCrew = asyncHandler( async (req, res) => {
     for (const member of membersToDowngrade) { 
         if (!aircraftCrew.memberIds.includes(member._id)) { // Double check that new crew does not include this user anymore
             member.isMember -= 1
-            member.save()
+            await member.save()
         }
     }
     aircraftCrew["memberIds"] = memberIds
@@ -224,7 +224,7 @@ const deleteAircraftCrew = asyncHandler( async (req, res) => {
     };
     for (const member of membersToDelete) {
         member.isMember -= 1
-        member.save()
+        await member.save()
     }
 
     const result = await aircraftCrew.deleteOne()

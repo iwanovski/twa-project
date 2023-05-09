@@ -68,7 +68,7 @@ const createMechanicCrew = asyncHandler( async (req, res) => {
     // Needs to be here as looping aircraftTypes can still throw error
     for (const member of members) {
         member.isMember += 1
-        member.save()
+        await member.save()
     }
 
     // Create and store new mechanic crew
@@ -112,34 +112,6 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
         return res.status(400).json({"message": `Airport with code ${homeAirportCode} does not exist.`})
     }
 
-    // Update simple parameters
-    if (memberIds) {
-        let members = []
-        for (const memberId of memberIds) {
-            let member
-            try {
-                member = await User.findOne({ "_id": memberId }).exec()
-            } catch (e) {
-                return res.status(400).json({"message": `Ids have different format.`})
-            }
-            
-            if (!member) {
-                return res.status(400).json({"message": `User with id ${memberId} does not exist.`})
-            }
-            members.push(member)
-        }
-
-        for (const member of members) {
-            if (!mechanicCrew.memberIds.includes(member._id)) {
-                member.isMember += 1
-                member.save()
-            }
-        }
-        mechanicCrew["memberIds"] = memberIds
-    } else {
-        mechanicCrew["memberIds"] = []
-    }
-
     // Update complex parameters
     for (const aircraftTypeCode of aircraftTypeCodes) {
         let aircraftType = await AircraftType.findOne({ "code": aircraftTypeCode }).exec()
@@ -173,7 +145,7 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
     for (const member of members) { // New members
         if (!mechanicCrew.memberIds.includes(member._id)) { // If mechanic not in current crew
             member.isMember += 1
-            member.save()
+            await member.save()
         }
     }
 
@@ -195,7 +167,7 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
     for (const member of membersToDowngrade) { 
         if (!mechanicCrew.memberIds.includes(member._id)) { // Double check that new crew does not include this user anymore
             member.isMember -= 1
-            member.save()
+            await member.save()
         }
     }
     mechanicCrew.memberIds = memberIds
@@ -241,7 +213,7 @@ const deleteMechanicCrew = asyncHandler( async (req, res) => {
     };
     for (const member of membersToDelete) {
         member.isMember -= 1
-        member.save()
+        await member.save()
     }
 
     const result = await mechanicCrew.deleteOne()
