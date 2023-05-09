@@ -165,7 +165,7 @@ const updateMechanicCrew = asyncHandler( async (req, res) => {
         }
     }
     for (const member of membersToDowngrade) { 
-        if (!mechanicCrew.memberIds.includes(member._id.toString())) { // Double check that new crew does not include this user anymore
+        if (!memberIds.includes(member._id.toString())) { // Double check that new crew does not include this user anymore
             member.isMember -= 1
             await member.save()
         }
